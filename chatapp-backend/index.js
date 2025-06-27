@@ -7,7 +7,7 @@ const { injectIO, setUserSockets } = require('./Controller/messageController');
 require('./DB/connection');
 
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'https://cute-gnome-667af4.netlify.app' }));
 app.use(express.json());
 app.use('/Uploads', express.static('./Uploads'));
 app.use(router);
@@ -15,7 +15,7 @@ app.use(router);
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE'] },
+  cors: { origin: 'https://cute-gnome-667af4.netlify.app', methods: ['GET', 'POST', 'PUT', 'DELETE'] },
 });
 
 const users = {};
