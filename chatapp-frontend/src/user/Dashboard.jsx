@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../App.css';
-import { getAcceptedRequestsAPI, sendmessageAPI, getMessagesAPI, deleteMessageAPI } from '../Service/allapi';
-import { server_url } from '../Service/server_url';
+import { getAcceptedRequestsAPI, sendmessageAPI, getMessagesAPI, deleteMessageAPI } from '../../Service/allapi';
+import { server_url } from '../../Service/server_url';
 import Navbar from './Navbar';
 import { MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardBody, MDBInputGroup, MDBIcon } from 'mdb-react-ui-kit';
 import socket from '../socket';

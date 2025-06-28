@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
-import { edituserAPI, getallusersAPI } from '../Service/allapi';
+import { edituserAPI, getallusersAPI } from '../../Service/allapi';
 import { jwtDecode } from 'jwt-decode';
 import { toast } from 'react-toastify';
 

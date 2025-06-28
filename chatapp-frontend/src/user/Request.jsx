@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
-import { getRequestAPI, updateRequestStatusAPI } from '../Service/allapi';
-import { server_url } from '../Service/server_url';
+import { getRequestAPI, updateRequestStatusAPI } from '../../Service/allapi';
+import { server_url } from '../../Service/server_url';
 import socket from '../socket';
 import { toast } from 'react-toastify';
 

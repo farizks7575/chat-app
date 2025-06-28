@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { server_url } from '../Service/server_url';
+import { server_url } from '../../Service/server_url';
 import socket from '../socket';
 import { toast } from 'react-toastify';
 

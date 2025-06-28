@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MDBBadge, MDBBtn, MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
-import { getallusersAPI } from '../Service/allapi';
-import { server_url } from '../Service/server_url';
+import { getallusersAPI } from '../../Service/allapi';
+import { server_url } from '../../Service/server_url';
 import { toast } from 'react-toastify';
 
 const ManageUsers = () => {

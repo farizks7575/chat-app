@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { userloginAPI } from '../Service/allapi';
+import { userloginAPI } from '../../Service/allapi';
 import { Link } from 'react-router-dom';
 
 const styles = {

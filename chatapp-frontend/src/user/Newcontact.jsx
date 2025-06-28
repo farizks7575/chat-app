@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
-import { getallusersAPI, sendRequestAPI, getAcceptedRequestsAPI } from '../Service/allapi';
-import { server_url } from '../Service/server_url';
+import { getallusersAPI, sendRequestAPI, getAcceptedRequestsAPI } from '../../Service/allapi';
+import { server_url } from '../../Service/server_url';
 import { FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
