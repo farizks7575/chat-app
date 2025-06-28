@@ -4,7 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const router = require('./Router/router');
 const { injectIO, setUserSockets } = require('./Controller/messageController');
-require('./DB/connection');
+require('./DB/connection'); 
 
 const app = express();
 
