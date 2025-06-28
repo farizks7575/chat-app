@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import socket from './socket'; // Import centralized socket
+import socket from './socket';
 import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -10,11 +10,7 @@ import Dashboard from './user/Dashboard';
 import Newcontact from './user/Newcontact';
 import Settings from './user/Settings';
 import Request from './user/Request';
-
-//Admin
-
 import Admindashboard from './admin/Admindashboard';
-
 
 function AppWrapper() {
   const location = useLocation();
@@ -52,11 +48,7 @@ function AppWrapper() {
         <Route path="/newcontact" element={<Newcontact />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/request" element={<Request />} />
-
-        {/* Admindashboard */}
-
-         <Route path="/admindashboard" element={<Admindashboard />} />
-
+        <Route path="/admindashboard" element={<Admindashboard />} />
       </Routes>
       <ToastContainer />
     </>

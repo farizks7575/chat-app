@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { userloginAPI } from '../../Service/allapi';
+import { userloginAPI } from '../Service/allapi';
 import { Link } from 'react-router-dom';
 
 const styles = {
   page: {
-     backgroundColor: '#f9f9f9',
-      backgroundImage: "url('/backgroundimage.png')", // Adjust the path as needed
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontFamily: "'Segoe UI', 'Helvetica Neue', sans-serif",
-      textAlign: 'center',
-      padding: '0 20px',
-      position: 'relative',
-      overflow: 'hidden',
-      backgroundSize: 'cover',       
-      backgroundRepeat: 'no-repeat', 
-      backgroundPosition: 'center', 
+    backgroundColor: '#f9f9f9',
+    backgroundImage: "url('/backgroundimage.png')",
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily: "'Segoe UI', 'Helvetica Neue', sans-serif",
+    textAlign: 'center',
+    padding: '0 20px',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
   },
   form: {
     zIndex: 2,
@@ -73,43 +73,39 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [hover, setHover] = useState(false);
 
-const handlelogin = async (e) => {
-  e.preventDefault();
-  const { email, password } = formData;
+  const handlelogin = async (e) => {
+    e.preventDefault();
+    const { email, password } = formData;
 
-  if (!email || !password) {
-    return toast.info('Please fill all fields');
-  }
-
-  // Admin shortcut check (without API call)
-  if (email === 'admin@gmail.com' && password === '123') {
-    toast.success('Welcome, Admin');
-    sessionStorage.setItem('isAdmin', true);
-    setTimeout(() => (window.location.href = '/admindashboard'), 2000);
-    return;
-  }
-
-  try {
-    const result = await userloginAPI({ email, password });
-
-    if (result.status === 200) {
-      const user = result.data.existinguser;
-      toast.success(`Welcome, ${user.name}`);
-      sessionStorage.setItem('token', result.data.token);
-      sessionStorage.setItem('username', user.name);
-      sessionStorage.setItem('userId', user._id);
-      sessionStorage.setItem('userImage', user.image);
-      sessionStorage.setItem('userGender', user.gender);
-
-      setTimeout(() => (window.location.href = '/dashboard'), 2000);
-    } else {
-      toast.error(result.data.message || 'Login failed');
+    if (!email || !password) {
+      return toast.info('Please fill all fields');
     }
-  } catch (error) {
-    toast.error('Invalid credentials or server error');
-  }
-};
 
+    if (email === 'admin@gmail.com' && password === '123') {
+      toast.success('Welcome, Admin');
+      sessionStorage.setItem('isAdmin', true);
+      setTimeout(() => (window.location.href = '/admindashboard'), 2000);
+      return;
+    }
+
+    try {
+      const result = await userloginAPI({ email, password });
+      if (result.status === 200) {
+        const user = result.data.existinguser;
+        toast.success(`Welcome, ${user.name}`);
+        sessionStorage.setItem('token', result.data.token);
+        sessionStorage.setItem('username', user.name);
+        sessionStorage.setItem('userId', user._id);
+        sessionStorage.setItem('userImage', user.image);
+        sessionStorage.setItem('userGender', user.gender);
+        setTimeout(() => (window.location.href = '/dashboard'), 2000);
+      } else {
+        toast.error(result.data.message || 'Login failed');
+      }
+    } catch (error) {
+      toast.error('Invalid credentials or server error');
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -141,7 +137,6 @@ const handlelogin = async (e) => {
         >
           Login
         </button>
-
         <p style={{ marginTop: '16px', fontSize: '0.95rem' }}>
           Don't have an account?{' '}
           <Link to="/register" style={{ color: '#0984e3', textDecoration: 'none', fontWeight: '500' }}>
@@ -149,7 +144,6 @@ const handlelogin = async (e) => {
           </Link>
         </p>
       </form>
-
       <ToastContainer />
     </div>
   );

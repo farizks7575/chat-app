@@ -7,7 +7,23 @@ const { injectIO, setUserSockets } = require('./Controller/messageController');
 require('./DB/connection');
 
 const app = express();
-app.use(cors({ origin: 'https://cute-gnome-667af4.netlify.app' }));
+
+// Allow multiple origins for development and production
+const allowedOrigins = [
+  'https://cute-gnome-667af4.netlify.app',
+  'http://localhost:3000', // For local testing
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use('/Uploads', express.static('./Uploads'));
 app.use(router);
@@ -15,7 +31,13 @@ app.use(router);
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
-  cors: { origin: 'https://cute-gnome-667af4.netlify.app', methods: ['GET', 'POST', 'PUT', 'DELETE'] },
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  },
+  pingTimeout: 60000, // Increase timeout to prevent disconnection
+  pingInterval: 25000,
 });
 
 const users = {};
@@ -77,16 +99,23 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
     for (const userId in users) {
       if (users[userId] === socket.id) {
         delete users[userId];
-        console.log(`User ${userId} disconnected`);
+        console.log(`User ${userId} disconnected: ${reason}`);
         break;
       }
     }
-    console.log('Socket disconnected:', socket.id);
+    console.log('Socket disconnected:', socket.id, 'Reason:', reason);
   });
+});
+
+// Debug environment variables
+console.log('Environment variables:', {
+  PORT: process.env.PORT,
+  JWT_SECRET: process.env.JWT_SECRET,
+  MONGODB_URI: process.env.MONGODB_URI,
 });
 
 const PORT = process.env.PORT || 5000;

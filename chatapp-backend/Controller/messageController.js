@@ -21,6 +21,7 @@ exports.sendMessage = async (req, res) => {
   try {
     const newMessage = new Message({ sender, receiver, content });
     await newMessage.save();
+    console.log(`Message saved: ${newMessage._id}`);
 
     const messageData = {
       sender,
@@ -32,9 +33,11 @@ exports.sendMessage = async (req, res) => {
 
     if (io && userSockets[receiver]) {
       io.to(userSockets[receiver]).emit('receive_message', messageData);
+      console.log(`Message emitted to receiver: ${receiver}`);
     }
     if (io && userSockets[sender]) {
       io.to(userSockets[sender]).emit('receive_message', messageData);
+      console.log(`Message emitted to sender: ${sender}`);
     }
 
     res.status(201).json(newMessage);
@@ -46,6 +49,7 @@ exports.sendMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   const { user1, user2 } = req.params;
+  console.log(`Fetching messages for user1: ${user1}, user2: ${user2}`);
 
   try {
     const messages = await Message.find({
@@ -54,7 +58,7 @@ exports.getMessages = async (req, res) => {
         { sender: user2, receiver: user1 },
       ],
     }).sort({ timestamp: 1 });
-
+    console.log(`Messages fetched: ${messages.length}`);
     res.status(200).json(messages);
   } catch (err) {
     console.error('Error fetching messages:', err);
@@ -70,6 +74,7 @@ exports.deleteMessage = async (req, res) => {
     if (!message) {
       return res.status(404).json({ error: 'Message not found' });
     }
+    console.log(`Message deleted: ${messageId}`);
     res.status(200).json({ message: 'Message deleted successfully' });
   } catch (err) {
     console.error('Error deleting message:', err);

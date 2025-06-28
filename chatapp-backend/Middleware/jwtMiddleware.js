@@ -1,23 +1,25 @@
-// middleware/jwtMiddleware.js
 const jwt = require('jsonwebtoken');
 
 const jwtMiddleware = (req, res, next) => {
-  console.log("inside jwt middleware");
+  console.log('Inside JWT middleware');
 
   try {
-    const token = req.headers['authorization'].split(" ")[1];
-
-    if (token) {
-      const jwtResponse = jwt.verify(token, process.env.jwt_secret);
-      req.user = { _id: jwtResponse.userId }; // FIXED LINE
-
-      next();
-    } else {
-      res.status(401).json("Please provide token");
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return res.status(401).json({ message: 'No authorization header provided' });
     }
 
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const jwtResponse = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { _id: jwtResponse.userId };
+    next();
   } catch (err) {
-    res.status(403).json("Please login");
+    console.error('JWT verification error:', err.message);
+    res.status(403).json({ message: 'Invalid or expired token. Please login again.' });
   }
 };
 

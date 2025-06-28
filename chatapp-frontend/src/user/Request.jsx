@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../user/Navbar';
+import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
-import { getRequestAPI, updateRequestStatusAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
-import socket from '../socket'; // Import centralized socket
+import { getRequestAPI, updateRequestStatusAPI } from '../Service/allapi';
+import { server_url } from '../Service/server_url';
+import socket from '../socket';
+import { toast } from 'react-toastify';
 
 function Request() {
   const [requests, setRequests] = useState([]);
@@ -13,14 +14,19 @@ function Request() {
   const fetchRequests = async () => {
     try {
       if (!token) {
-        console.error('Token not found');
+        toast.error('Please log in to view requests');
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
       const res = await getRequestAPI(headers);
+      if (res.status !== 200) {
+        toast.error('Failed to fetch requests');
+        return;
+      }
       setRequests(res?.data || []);
     } catch (err) {
       console.error('Failed to fetch requests:', err);
+      toast.error('Error fetching requests');
       setRequests([]);
     }
   };
@@ -31,7 +37,8 @@ function Request() {
       socket.emit('register_user', userId);
 
       socket.on('new_request', () => {
-        fetchRequests(); // Refresh requests when a new one is received
+        fetchRequests();
+        toast.info('New friend request received!');
       });
     }
 
@@ -43,7 +50,7 @@ function Request() {
   const handleUpdateStatus = async (requestId, status) => {
     try {
       if (!token) {
-        console.error('Token not found');
+        toast.error('Please log in to update requests');
         return;
       }
       const headers = {
@@ -51,16 +58,20 @@ function Request() {
         'Content-Type': 'application/json',
       };
       const res = await updateRequestStatusAPI(requestId, status, headers);
-      if (res?.status === 200) {
-        setRequests((prev) => prev.filter((r) => r._id !== requestId));
-        if (status === 'accepted') {
-          socket.emit('request_accepted', { senderId: userId, requestId });
-        }
+      if (res.status !== 200) {
+        toast.error('Failed to update request status');
+        return;
+      }
+      setRequests((prev) => prev.filter((r) => r._id !== requestId));
+      if (status === 'accepted') {
+        socket.emit('request_accepted', { senderId: userId, requestId });
+        toast.success('Request accepted!');
       } else {
-        console.error('Failed to update request status');
+        toast.success('Request declined.');
       }
     } catch (err) {
       console.error('Error updating request:', err);
+      toast.error('Error updating request');
     }
   };
 
@@ -69,15 +80,15 @@ function Request() {
       <Navbar />
       <MDBListGroup style={{ marginLeft: '50px', width: '1070px', marginTop: '32px' }} light>
         {requests.length === 0 ? (
-        <div className="text-center mt-5">
-          <img
-            src="/notification.png"
-            alt="No requests illustration"
-            className="mb-3"
-            style={{ width: '270px', marginTop: '25px', opacity: '0.7' }}
-          />
-          <p className="text-muted fs-5">No Requests</p>
-        </div>
+          <div className="text-center mt-5">
+            <img
+              src="/notification.png"
+              alt="No requests illustration"
+              className="mb-3"
+              style={{ width: '270px', marginTop: '25px', opacity: '0.7' }}
+            />
+            <p className="text-muted fs-5">No Requests</p>
+          </div>
         ) : (
           requests.map((r) => (
             <MDBListGroupItem
@@ -104,7 +115,9 @@ function Request() {
                     e.target.src = `${server_url}/Uploads/default.jpg`;
                   }}
                 />
-                <h5 style={{ fontWeight: 600, marginLeft:'5px',marginTop:'10px' }}>{r.senderId?.name || 'Unknown'}</h5>
+                <h5 style={{ fontWeight: 600, marginLeft: '5px', marginTop: '10px' }}>
+                  {r.senderId?.name || 'Unknown'}
+                </h5>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button

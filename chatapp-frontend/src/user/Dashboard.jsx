@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../App.css';
-import { getAcceptedRequestsAPI, sendmessageAPI, getMessagesAPI, deleteMessageAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
-import Navbar from '../user/Navbar';
+import { getAcceptedRequestsAPI, sendmessageAPI, getMessagesAPI, deleteMessageAPI } from '../Service/allapi';
+import { server_url } from '../Service/server_url';
+import Navbar from './Navbar';
 import { MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardBody, MDBInputGroup, MDBIcon } from 'mdb-react-ui-kit';
 import socket from '../socket';
 import EmojiPicker from 'emoji-picker-react';
+import { toast } from 'react-toastify';
 
 function Dashboard() {
   const [acceptedUsers, setAcceptedUsers] = useState([]);
@@ -20,12 +21,18 @@ function Dashboard() {
   const messagesEndRef = useRef(null);
   const messageIds = useRef(new Set());
 
-  // Fetch accepted users
   const fetchAccepted = async () => {
     try {
-      if (!token || !userId) return;
+      if (!token || !userId) {
+        toast.error('Please log in to view accepted users');
+        return;
+      }
       const headers = { Authorization: `Bearer ${token}` };
       const res = await getAcceptedRequestsAPI(headers);
+      if (res.status !== 200) {
+        toast.error('Failed to fetch accepted users');
+        return;
+      }
       const usersWithLastMessages = await Promise.all(
         (res?.data || []).map(async (user) => {
           const msgRes = await getMessagesAPI(userId, user._id, headers);
@@ -39,26 +46,30 @@ function Dashboard() {
       setAcceptedUsers(usersWithLastMessages);
     } catch (err) {
       console.error('Error fetching accepted users:', err);
+      toast.error('Error fetching accepted users');
       setAcceptedUsers([]);
     }
   };
 
-  // Fetch messages for selected user
   const fetchMessages = async (receiverId) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const res = await getMessagesAPI(userId, receiverId, headers);
+      if (res.status !== 200) {
+        toast.error('Failed to fetch messages');
+        return;
+      }
       const fetchedMessages = res?.data || [];
       messageIds.current.clear();
       setMessages(fetchedMessages);
       fetchedMessages.forEach((msg) => messageIds.current.add(msg._id));
     } catch (err) {
       console.error('Error fetching messages:', err);
+      toast.error('Error fetching messages');
       setMessages([]);
     }
   };
 
-  // Handle user selection
   const handleUserSelect = (user) => {
     setSelectedUser(user);
     setMessages([]);
@@ -67,13 +78,16 @@ function Dashboard() {
     setIsDropdownOpen({});
   };
 
-  // Handle sending a message
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const body = { sender: userId, receiver: selectedUser._id, content: newMessage };
       const res = await sendmessageAPI(body, headers);
+      if (res.status !== 201) {
+        toast.error('Failed to send message');
+        return;
+      }
       const sentMessage = res.data;
 
       if (!messageIds.current.has(sentMessage._id)) {
@@ -81,7 +95,6 @@ function Dashboard() {
         messageIds.current.add(sentMessage._id);
       }
 
-      // Update acceptedUsers with the new lastMessage
       setAcceptedUsers((prev) =>
         prev.map((user) =>
           user._id === selectedUser._id
@@ -102,24 +115,28 @@ function Dashboard() {
       setShowEmojiPicker(false);
     } catch (err) {
       console.error('Error sending message:', err);
+      toast.error('Error sending message');
     }
   };
 
-  // Handle deleting a message
   const handleDeleteMessage = async (messageId) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      await deleteMessageAPI(messageId, headers);
+      const res = await deleteMessageAPI(messageId, headers);
+      if (res.status !== 200) {
+        toast.error('Failed to delete message');
+        return;
+      }
       setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
       messageIds.current.delete(messageId);
       socket.emit('message_deleted', { messageId, receiver: selectedUser._id });
       setIsDropdownOpen((prev) => ({ ...prev, [messageId]: false }));
     } catch (err) {
       console.error('Error deleting message:', err);
+      toast.error('Error deleting message');
     }
   };
 
-  // Toggle dropdown for a specific message
   const toggleDropdown = (messageId) => {
     setIsDropdownOpen((prev) => ({
       ...Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}),
@@ -127,7 +144,6 @@ function Dashboard() {
     }));
   };
 
-  // Scroll to the latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -137,7 +153,10 @@ function Dashboard() {
   }, [messages]);
 
   useEffect(() => {
-    if (!userId || !token) return;
+    if (!userId || !token) {
+      toast.error('Please log in to continue');
+      return;
+    }
 
     fetchAccepted();
     socket.emit('register_user', userId);
@@ -157,7 +176,6 @@ function Dashboard() {
         messageIds.current.add(message._id);
       }
 
-      // Update acceptedUsers with the new lastMessage for the sender
       setAcceptedUsers((prev) =>
         prev.map((user) =>
           user._id === message.sender
@@ -184,7 +202,6 @@ function Dashboard() {
     };
   }, [userId, token, selectedUser]);
 
-  // Handle emoji selection
   const handleEmojiClick = (emojiData) => {
     setNewMessage((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
@@ -199,7 +216,6 @@ function Dashboard() {
             <MDBCard className="h-100">
               <MDBCardBody className="h-100 p-0">
                 <MDBRow className="h-100 m-0">
-                  {/* Contact List */}
                   <MDBCol md="6" lg="5" xl="4" className="p-0">
                     <div className="p-3" style={{ backgroundColor: '#f8f9fb', height: '100%' }}>
                       <MDBInputGroup className="rounded mb-3">
@@ -251,7 +267,9 @@ function Dashboard() {
                                       : ''}
                                   </p>
                                   {u.lastMessage && (
-                                    <span style={{marginLeft:'15px'}} className="badge bg-danger rounded-pill">•</span>
+                                    <span style={{ marginLeft: '15px' }} className="badge bg-danger rounded-pill">
+                                      •
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -261,8 +279,6 @@ function Dashboard() {
                       </div>
                     </div>
                   </MDBCol>
-
-                  {/* Chat Area */}
                   <MDBCol md="6" lg="7" xl="8" className="p-0 chat-container">
                     <div className="chat-wrapper">
                       {!selectedUser ? (
@@ -337,8 +353,6 @@ function Dashboard() {
                           <div ref={messagesEndRef} />
                         </div>
                       )}
-
-                      {/* Message Input */}
                       {selectedUser && (
                         <div className="text-muted d-flex justify-content-start align-items-center p-3 border-top">
                           <img

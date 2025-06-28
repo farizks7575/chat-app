@@ -1,6 +1,6 @@
 const User = require('../Model/userSchema');
 const bcrypt = require('bcryptjs');
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 exports.registerUser = async (req, res) => {
   try {
@@ -20,16 +20,17 @@ exports.registerUser = async (req, res) => {
 
     const newUser = new User({ name, email, password: hashedPassword, gender, image });
     await newUser.save();
+    console.log(`User registered: ${newUser._id}`);
 
     const userResponse = newUser.toObject();
     delete userResponse.password;
 
     res.status(201).json({ message: 'User registered successfully', user: userResponse });
   } catch (error) {
+    console.error('Error registering user:', error);
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
-
 
 exports.loginUser = async (req, res) => {
   try {
@@ -37,32 +38,32 @@ exports.loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      console.log(`User logged in: ${user._id}`);
       res.status(200).json({ existinguser: user, token });
     } else {
-      res.status(406).json({ message: "Invalid credentials" });
+      res.status(406).json({ message: 'Invalid credentials' });
     }
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error('Error logging in user:', error);
+    res.status(500).json({ message: 'Server error', error });
   }
 };
-
-// gel all users
 
 exports.getallusers = async (req, res) => {
   try {
     const allUsers = await User.find();
+    console.log(`Fetched ${allUsers.length} users`);
     res.status(200).json(allUsers);
   } catch (error) {
+    console.error('Error fetching users:', error);
     res.status(500).json(error);
   }
 };
 
-
 exports.edituserController = async (req, res) => {
   const { id } = req.params;
   const { name, email, gender, password } = req.body;
-  console.log("req.file:", req.file); // Debug log to check if file is received
 
   try {
     const updatedFields = { name, email, gender };
@@ -73,20 +74,19 @@ exports.edituserController = async (req, res) => {
     }
 
     if (req.file) {
-      updatedFields.image = req.file.filename; // Store filename, matches registerUser
+      updatedFields.image = req.file.filename;
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, updatedFields, { new: true });
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
+    console.log(`User updated: ${id}`);
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.error("Edit user error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
-
-

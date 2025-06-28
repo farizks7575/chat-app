@@ -1,11 +1,8 @@
 const mongoose = require('mongoose');
 
-const connection_string=process.env.connection_string
-
-
-mongoose.connect(connection_string).then(() => {
-    console.log('MongoDB connected successfully!');
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.catch((error) => {
-    console.error('MongoDB connection error:', error);
-});
+  .then(() => console.log('MongoDB connected successfully!'))
+  .catch((err) => console.error('MongoDB connection error:', err));

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { server_url } from '../../Service/server_url';
-import socket from '../socket'; // Import the Socket.IO client
+import { server_url } from '../Service/server_url';
+import socket from '../socket';
+import { toast } from 'react-toastify';
 
 const Sidebar = () => {
   const [activeLink, setActiveLink] = useState('Chats');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userImage, setUserImage] = useState(sessionStorage.getItem('userImage') || 'default.jpg');
-  const [newRequestCount, setNewRequestCount] = useState(0); // Track new requests
+  const [newRequestCount, setNewRequestCount] = useState(0);
   const username = sessionStorage.getItem('username') || 'User';
-  
 
   const navItems = [
     {
@@ -35,14 +35,13 @@ const Sidebar = () => {
   ];
 
   useEffect(() => {
-    // Listen for new request events
-    socket.on('newRequest', (data) => {
-      setNewRequestCount((prev) => prev + 1); 
+    socket.on('new_request', () => {
+      setNewRequestCount((prev) => prev + 1);
+      toast.info('New friend request received!');
     });
 
-    // Clean up the socket listener on component unmount
     return () => {
-      socket.off('newRequest');
+      socket.off('new_request');
     };
   }, []);
 
@@ -99,7 +98,7 @@ const Sidebar = () => {
             onClick={() => {
               setActiveLink(item.name);
               if (item.name === 'Request') {
-                setNewRequestCount(0); // Reset count when navigating to Request page
+                setNewRequestCount(0);
               }
             }}
             style={{
@@ -116,7 +115,7 @@ const Sidebar = () => {
               fontWeight: activeLink === item.name ? '600' : '500',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              position: 'relative', // For positioning the badge
+              position: 'relative',
             }}
           >
             <svg
@@ -141,7 +140,7 @@ const Sidebar = () => {
                   position: 'absolute',
                   top: '5px',
                   right: isCollapsed ? '10px' : '20px',
-                  backgroundColor: '#ef4444', // Red badge for visibility
+                  backgroundColor: '#ef4444',
                   color: '#fff',
                   borderRadius: '50%',
                   width: '20px',
@@ -151,7 +150,7 @@ const Sidebar = () => {
                   justifyContent: 'center',
                   fontSize: '12px',
                   fontWeight: '600',
-                  marginTop:'11px',
+                  marginTop: '11px',
                 }}
               >
                 {newRequestCount}
@@ -184,7 +183,7 @@ const Sidebar = () => {
               border: '2px solid #10b981',
             }}
             onError={(e) => {
-              e.target.src = `${server_url}/uploads/default.jpg`;
+              e.target.src = `${server_url}/Uploads/default.jpg`;
             }}
             draggable={false}
           />

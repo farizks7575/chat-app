@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'; // Add useState and useEffect to the import
-import Navbar from '../user/Navbar';
+import React, { useEffect, useState } from 'react';
+import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
-import { getallusersAPI, sendRequestAPI, getAcceptedRequestsAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
+import { getallusersAPI, sendRequestAPI, getAcceptedRequestsAPI } from '../Service/allapi';
+import { server_url } from '../Service/server_url';
 import { FaUserPlus } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 function Newcontact() {
   const [users, setUsers] = useState([]);
@@ -17,23 +18,30 @@ function Newcontact() {
         const loggedInUserId = sessionStorage.getItem('userId');
         const authToken = sessionStorage.getItem('token');
         if (!loggedInUserId || !authToken) {
-          console.error('User ID or token not found');
+          toast.error('Please log in to view users');
           return;
         }
         setCurrentUserId(loggedInUserId);
         setToken(authToken);
 
-        // Fetch all users
-        const result = await getallusersAPI();
+        const result = await getallusersAPI({ Authorization: `Bearer ${authToken}` });
+        if (result.status !== 200) {
+          toast.error('Failed to fetch users');
+          return;
+        }
         const filteredUsers = result.data.filter((user) => user._id !== loggedInUserId);
         setUsers(filteredUsers);
 
-        // Fetch accepted connections
         const headers = { Authorization: `Bearer ${authToken}` };
         const connections = await getAcceptedRequestsAPI(headers);
+        if (connections.status !== 200) {
+          toast.error('Failed to fetch connections');
+          return;
+        }
         setConnectedUsers(connections.data.map((c) => c._id));
       } catch (error) {
         console.error('Failed to fetch data:', error);
+        toast.error('Error fetching data');
         setUsers([]);
         setConnectedUsers([]);
       }
@@ -45,14 +53,18 @@ function Newcontact() {
   const handleSendRequest = async (receiverId) => {
     try {
       if (!token) {
-        alert('Authentication token not found. Please log in again.');
+        toast.error('Authentication token not found. Please log in again.');
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
       const res = await sendRequestAPI(receiverId, headers);
-      alert(res.data.message || 'Request sent successfully!');
+      if (res.status !== 201) {
+        toast.error(res.data.message || 'Failed to send request');
+        return;
+      }
+      toast.success(res.data.message || 'Request sent successfully!');
     } catch (error) {
-      alert(error.response?.data?.message || 'Already sent request');
+      toast.error(error.response?.data?.message || 'Error sending request');
       console.error('Error sending request:', error);
     }
   };

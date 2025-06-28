@@ -1,1 +1,1 @@
-export const server_url = "https://chat-app-kzih.onrender.com"; // Local server URL
+export const server_url = process.env.REACT_APP_SERVER_URL || 'https://chat-app-kzih.onrender.com';
