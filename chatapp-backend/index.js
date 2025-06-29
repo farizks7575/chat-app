@@ -10,7 +10,7 @@ require('./DB/connection');
 const app = express();
 
 const allowedOrigins = [
-  'https://legendary-cannoli-29f7c8.netlify.app',
+  'https://papaya-swan-21cc90.netlify.app',
 ];
 
 app.use(cors({
