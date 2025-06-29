@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../App.css';
 import { getAcceptedRequestsAPI, sendmessageAPI, getMessagesAPI, deleteMessageAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
 import Navbar from './Navbar';
 import { MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardBody, MDBInputGroup, MDBIcon } from 'mdb-react-ui-kit';
 import socket from '../socket';
@@ -25,6 +24,7 @@ function Dashboard() {
     try {
       if (!token || !userId) {
         toast.error('Please log in to view accepted users');
+        window.location.href = '/login';
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
@@ -155,6 +155,7 @@ function Dashboard() {
   useEffect(() => {
     if (!userId || !token) {
       toast.error('Please log in to continue');
+      window.location.href = '/login';
       return;
     }
 
@@ -240,9 +241,9 @@ function Dashboard() {
                               <div className="d-flex justify-content-between">
                                 <div className="d-flex flex-row">
                                   <img
-                                    src={`${server_url}/Uploads/${u.image || 'default.jpg'}`}
+                                    src={u.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                                     onError={(e) => {
-                                      e.target.src = `${server_url}/Uploads/default.jpg`;
+                                      e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                                     }}
                                     alt="avatar"
                                     width="60"
@@ -299,11 +300,11 @@ function Dashboard() {
                             >
                               {msg.sender !== userId && (
                                 <img
-                                  src={`${server_url}/Uploads/${selectedUser.image || 'default.jpg'}`}
+                                  src={selectedUser.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                                   alt="avatar"
                                   className="message-avatar"
                                   onError={(e) => {
-                                    e.target.src = `${server_url}/Uploads/default.jpg`;
+                                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                                   }}
                                 />
                               )}
@@ -340,11 +341,11 @@ function Dashboard() {
                               </div>
                               {msg.sender === userId && (
                                 <img
-                                  src={`${server_url}/Uploads/${userImage}`}
+                                  src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                                   alt="avatar"
                                   className="message-avatar"
                                   onError={(e) => {
-                                    e.target.src = `${server_url}/Uploads/default.jpg`;
+                                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                                   }}
                                 />
                               )}
@@ -356,11 +357,11 @@ function Dashboard() {
                       {selectedUser && (
                         <div className="text-muted d-flex justify-content-start align-items-center p-3 border-top">
                           <img
-                            src={`${server_url}/Uploads/${userImage}`}
+                            src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                             alt="avatar"
                             style={{ width: '40px', height: '40px', borderRadius: '50%' }}
                             onError={(e) => {
-                              e.target.src = `${server_url}/Uploads/default.jpg`;
+                              e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                             }}
                           />
                           <input

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { MDBBadge, MDBBtn, MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
+import { MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
 import { getallusersAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
 import { toast } from 'react-toastify';
 
 const ManageUsers = () => {
@@ -21,11 +20,11 @@ const ManageUsers = () => {
       if (!token) {
         setError('No authentication token found. Please log in.');
         toast.error('Please log in to view users');
+        window.location.href = '/login';
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
       const result = await getallusersAPI(headers);
-      console.log('Fetched users:', result.data);
       if (result.status === 200) {
         setUsers(result.data);
       } else {

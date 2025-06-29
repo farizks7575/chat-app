@@ -73,7 +73,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [hover, setHover] = useState(false);
 
-  const handlelogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const { email, password } = formData;
 
@@ -83,7 +83,7 @@ const Login = () => {
 
     if (email === 'admin@gmail.com' && password === '123') {
       toast.success('Welcome, Admin');
-      sessionStorage.setItem('isAdmin', true);
+      sessionStorage.setItem('isAdmin', 'true');
       setTimeout(() => (window.location.href = '/admindashboard'), 2000);
       return;
     }
@@ -96,20 +96,21 @@ const Login = () => {
         sessionStorage.setItem('token', result.data.token);
         sessionStorage.setItem('username', user.name);
         sessionStorage.setItem('userId', user._id);
-        sessionStorage.setItem('userImage', user.image);
-        sessionStorage.setItem('userGender', user.gender);
+        sessionStorage.setItem('userImage', user.image || 'default.jpg');
+        sessionStorage.setItem('userGender', user.gender || '');
         setTimeout(() => (window.location.href = '/dashboard'), 2000);
       } else {
         toast.error(result.data.message || 'Login failed');
       }
     } catch (error) {
-      toast.error('Invalid credentials or server error');
+      console.error('Login error:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || 'Invalid credentials or server error');
     }
   };
 
   return (
     <div style={styles.page}>
-      <form onSubmit={handlelogin} style={styles.form}>
+      <form onSubmit={handleLogin} style={styles.form}>
         <h2 style={styles.heading}>Login</h2>
         <input
           type="email"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import { edituserAPI, getallusersAPI } from '../../Service/allapi';
 import { jwtDecode } from 'jwt-decode';
@@ -16,15 +16,19 @@ function Settings() {
 
   useEffect(() => {
     const token = sessionStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setUserId(decoded.userId);
-        fetchUserData(decoded.userId, token);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        toast.error('Invalid token');
-      }
+    if (!token) {
+      toast.error('Please log in to access settings');
+      window.location.href = '/login';
+      return;
+    }
+    try {
+      const decoded = jwtDecode(token);
+      setUserId(decoded.userId);
+      fetchUserData(decoded.userId, token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      toast.error('Invalid token');
+      window.location.href = '/login';
     }
   }, []);
 
@@ -85,6 +89,7 @@ function Settings() {
     if (token && userId) {
       const reqHeader = {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       };
 
       try {
@@ -106,6 +111,7 @@ function Settings() {
       }
     } else {
       toast.error('Authentication token missing');
+      window.location.href = '/login';
     }
   };
 
@@ -181,6 +187,13 @@ function Settings() {
                 className="form-control"
                 accept="image/*"
               />
+              {formData.profileImage && (
+                <img
+                  src={URL.createObjectURL(formData.profileImage)}
+                  alt="Preview"
+                  style={{ width: '100px', height: '100px', borderRadius: '50%', marginTop: '10px' }}
+                />
+              )}
             </div>
             <button
               type="submit"

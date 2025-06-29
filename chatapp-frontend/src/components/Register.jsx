@@ -115,50 +115,50 @@ const styles = {
 };
 
 const Signup = () => {
-  const [alldata, setalldata] = useState({
-    name: "",
-    email: "",
-    password: "",
-    gender: ""
+  const [alldata, setAlldata] = useState({
+    name: '',
+    email: '',
+    password: '',
+    gender: '',
   });
   const [imageFile, setImageFile] = useState(null);
   const [hover, setHover] = useState(false);
 
-  const handleregister = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     const { name, email, password, gender } = alldata;
+
     if (!name || !email || !password || !gender || !imageFile) {
-      console.log('Missing fields:', { name, email, password, gender, imageFile });
-      return toast.info("Please fill all fields and upload an image.");
+      toast.info('Please fill all fields and upload an image.');
+      return;
     }
 
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("gender", gender);
-    formData.append("profile", imageFile);
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('gender', gender);
+    formData.append('profile', imageFile);
 
     try {
       const result = await userregisterAPI(formData);
-      console.log('Registration response:', result.data);
       if (result.status === 201) {
-        toast.success("Registration successful!");
-        setalldata({ name: "", email: "", password: "", gender: "" });
+        toast.success('Registration successful!');
+        setAlldata({ name: '', email: '', password: '', gender: '' });
         setImageFile(null);
-        setTimeout(() => window.location.href = "/login", 2000);
+        setTimeout(() => (window.location.href = '/login'), 2000);
       } else {
-        toast.error(result.data.message || "Registration failed");
+        toast.error(result.data.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Registration error:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Server error. Try again later.");
+      toast.error(error.response?.data?.message || 'Server error. Try again later.');
     }
   };
 
   return (
     <div style={styles.page}>
-      <form onSubmit={handleregister} style={styles.form}>
+      <form onSubmit={handleRegister} style={styles.form}>
         <h2 style={styles.heading}>Register</h2>
 
         <div style={styles.imageUploadContainer}>
@@ -170,21 +170,26 @@ const Signup = () => {
                 style={styles.imagePreview}
               />
             ) : (
-              <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                backgroundColor: '#f0f0f0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '8px',
-                color: '#999',
-                fontSize: '0.8rem'
-              }}>
+              <div
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f0f0f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '8px',
+                  color: '#999',
+                  fontSize: '0.8rem',
+                }}
+              >
                 No Image
               </div>
             )}
+            <button type="button" style={styles.uploadButton}>
+              Upload Image
+            </button>
           </label>
           <input
             type="file"
@@ -200,7 +205,7 @@ const Signup = () => {
           placeholder="Name"
           style={styles.input}
           value={alldata.name}
-          onChange={e => setalldata({ ...alldata, name: e.target.value })}
+          onChange={(e) => setAlldata({ ...alldata, name: e.target.value })}
         />
 
         <input
@@ -208,7 +213,7 @@ const Signup = () => {
           placeholder="Email"
           style={styles.input}
           value={alldata.email}
-          onChange={e => setalldata({ ...alldata, email: e.target.value })}
+          onChange={(e) => setAlldata({ ...alldata, email: e.target.value })}
         />
 
         <input
@@ -216,7 +221,7 @@ const Signup = () => {
           placeholder="Password"
           style={styles.input}
           value={alldata.password}
-          onChange={e => setalldata({ ...alldata, password: e.target.value })}
+          onChange={(e) => setAlldata({ ...alldata, password: e.target.value })}
         />
 
         <div style={styles.genderGroup}>
@@ -224,17 +229,19 @@ const Signup = () => {
             <input
               type="radio"
               value="Male"
-              checked={alldata.gender === "Male"}
-              onChange={e => setalldata({ ...alldata, gender: e.target.value })}
-            /> Male
+              checked={alldata.gender === 'Male'}
+              onChange={(e) => setAlldata({ ...alldata, gender: e.target.value })}
+            />{' '}
+            Male
           </label>
           <label style={styles.genderLabel}>
             <input
               type="radio"
               value="Female"
-              checked={alldata.gender === "Female"}
-              onChange={e => setalldata({ ...alldata, gender: e.target.value })}
-            /> Female
+              checked={alldata.gender === 'Female'}
+              onChange={(e) => setAlldata({ ...alldata, gender: e.target.value })}
+            />{' '}
+            Female
           </label>
         </div>
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { server_url } from '../../Service/server_url';
 import socket from '../socket';
 import { toast } from 'react-toastify';
 
@@ -10,6 +9,7 @@ const Sidebar = () => {
   const [userImage, setUserImage] = useState(sessionStorage.getItem('userImage') || 'default.jpg');
   const [newRequestCount, setNewRequestCount] = useState(0);
   const username = sessionStorage.getItem('username') || 'User';
+  const location = useLocation();
 
   const navItems = [
     {
@@ -173,7 +173,7 @@ const Sidebar = () => {
           }}
         >
           <img
-            src={`${server_url}/Uploads/${userImage}`}
+            src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
             alt="User"
             style={{
               width: '42px',
@@ -183,7 +183,7 @@ const Sidebar = () => {
               border: '2px solid #10b981',
             }}
             onError={(e) => {
-              e.target.src = `${server_url}/Uploads/default.jpg`;
+              e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
             }}
             draggable={false}
           />

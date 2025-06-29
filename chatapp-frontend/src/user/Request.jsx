@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
 import { getRequestAPI, updateRequestStatusAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
 import socket from '../socket';
 import { toast } from 'react-toastify';
 
@@ -13,8 +12,9 @@ function Request() {
 
   const fetchRequests = async () => {
     try {
-      if (!token) {
+      if (!token || !userId) {
         toast.error('Please log in to view requests');
+        window.location.href = '/login';
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
@@ -51,6 +51,7 @@ function Request() {
     try {
       if (!token) {
         toast.error('Please log in to update requests');
+        window.location.href = '/login';
         return;
       }
       const headers = {
@@ -101,7 +102,7 @@ function Request() {
             >
               <div className="d-flex align-items-center">
                 <img
-                  src={`${server_url}/Uploads/${r.senderId?.image || 'default.jpg'}`}
+                  src={r.senderId?.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                   alt="Profile"
                   style={{
                     width: '55px',
@@ -112,7 +113,7 @@ function Request() {
                     marginRight: '12px',
                   }}
                   onError={(e) => {
-                    e.target.src = `${server_url}/Uploads/default.jpg`;
+                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                   }}
                 />
                 <h5 style={{ fontWeight: 600, marginLeft: '5px', marginTop: '10px' }}>

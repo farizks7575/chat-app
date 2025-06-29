@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import { MDBListGroup, MDBListGroupItem } from 'mdb-react-ui-kit';
 import { getallusersAPI, sendRequestAPI, getAcceptedRequestsAPI } from '../../Service/allapi';
-import { server_url } from '../../Service/server_url';
-import { FaUserPlus } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { FaUserPlus } from 'react-icons/fa';
 
 function Newcontact() {
   const [users, setUsers] = useState([]);
@@ -19,12 +18,14 @@ function Newcontact() {
         const authToken = sessionStorage.getItem('token');
         if (!loggedInUserId || !authToken) {
           toast.error('Please log in to view users');
+          window.location.href = '/login';
           return;
         }
-        setCurrentUserId(loggedInUserId);
+        setCurrentUserId(loggedInUserId); // Fixed the syntax error
         setToken(authToken);
 
-        const result = await getallusersAPI({ Authorization: `Bearer ${authToken}` });
+        const headers = { Authorization: `Bearer ${authToken}` };
+        const result = await getallusersAPI(headers);
         if (result.status !== 200) {
           toast.error('Failed to fetch users');
           return;
@@ -32,7 +33,6 @@ function Newcontact() {
         const filteredUsers = result.data.filter((user) => user._id !== loggedInUserId);
         setUsers(filteredUsers);
 
-        const headers = { Authorization: `Bearer ${authToken}` };
         const connections = await getAcceptedRequestsAPI(headers);
         if (connections.status !== 200) {
           toast.error('Failed to fetch connections');
@@ -54,6 +54,7 @@ function Newcontact() {
     try {
       if (!token) {
         toast.error('Authentication token not found. Please log in again.');
+        window.location.href = '/login';
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
@@ -84,11 +85,11 @@ function Newcontact() {
           >
             <div className="d-flex align-items-center">
               <img
-                src={`${server_url}/Uploads/${user.image || 'default.jpg'}`}
+                src={user.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                 alt="profile"
                 style={{ width: '55px', height: '55px', borderRadius: '50%', marginRight: '12px' }}
                 onError={(e) => {
-                  e.target.src = `${server_url}/Uploads/default.jpg`;
+                  e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                 }}
               />
               <h3 style={{ fontWeight: 600, marginTop: '10px', marginLeft: '5px' }}>
