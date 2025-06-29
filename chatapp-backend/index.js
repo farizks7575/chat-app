@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -10,7 +11,6 @@ const app = express();
 
 const allowedOrigins = [
   'https://legendary-cannoli-29f7c8.netlify.app',
-  'http://localhost:3000', // For local development
 ];
 
 app.use(cors({
@@ -25,14 +25,8 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use('/Uploads', express.static('./Uploads')); // Fallback for existing local images
+app.use('/Uploads', express.static('./Uploads')); // Kept for legacy compatibility, but Cloudinary is used
 app.use(router);
-
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
 
 const server = http.createServer(app);
 const { Server } = require('socket.io');
