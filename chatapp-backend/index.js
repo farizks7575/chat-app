@@ -10,7 +10,7 @@ const app = express();
 
 // Allow multiple origins for development and production
 const allowedOrigins = [
-  'https://zippy-crepe-1cf720.netlify.app/',
+  'https://legendary-cannoli-29f7c8.netlify.app',
   
 ];
 
