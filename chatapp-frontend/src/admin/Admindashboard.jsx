@@ -18,9 +18,14 @@ const ManageUsers = () => {
     setError('');
     try {
       const token = sessionStorage.getItem('token');
+      if (!token) {
+        setError('No authentication token found. Please log in.');
+        toast.error('Please log in to view users');
+        return;
+      }
       const headers = { Authorization: `Bearer ${token}` };
-
       const result = await getallusersAPI(headers);
+      console.log('Fetched users:', result.data);
       if (result.status === 200) {
         setUsers(result.data);
       } else {
@@ -28,8 +33,8 @@ const ManageUsers = () => {
         toast.error('Failed to fetch users');
       }
     } catch (err) {
-      console.error('Error fetching users:', err);
-      setError('Failed to fetch users.');
+      console.error('Error fetching users:', err.response?.data || err.message);
+      setError('Failed to fetch users: ' + (err.response?.data?.message || err.message));
       toast.error('Error fetching users');
     } finally {
       setLoading(false);
@@ -77,12 +82,12 @@ const ManageUsers = () => {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={`${server_url}/Uploads/${user.image || 'default.jpg'}`}
+                    src={user.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
                     alt="profile"
                     style={{ width: '45px', height: '45px' }}
                     className="rounded-circle"
                     onError={(e) => {
-                      e.target.src = `${server_url}/Uploads/default.jpg`;
+                      e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
                     }}
                   />
                 </td>

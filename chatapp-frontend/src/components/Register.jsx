@@ -6,24 +6,22 @@ import { Link } from 'react-router-dom';
 
 const styles = {
   page: {
-      backgroundColor: '#f9f9f9',
-      backgroundImage: "url('/backgroundimage.png')", // Adjust the path as needed
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontFamily: "'Segoe UI', 'Helvetica Neue', sans-serif",
-      textAlign: 'center',
-      padding: '0 20px',
-      position: 'relative',
-      overflow: 'hidden',
-      backgroundSize: 'cover',       
-      backgroundRepeat: 'no-repeat', 
-      backgroundPosition: 'center', 
+    backgroundColor: '#f9f9f9',
+    backgroundImage: "url('/backgroundimage.png')",
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontFamily: "'Segoe UI', 'Helvetica Neue', sans-serif",
+    textAlign: 'center',
+    padding: '0 20px',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
   },
- 
-  
   form: {
     zIndex: 2,
     backgroundColor: 'white',
@@ -113,13 +111,7 @@ const styles = {
     marginTop: '12px',
     fontSize: '0.9rem',
     color: '#666',
-    '& a': {
-      color: '#0984e3',
-      textDecoration: 'none',
-      fontWeight: '500',
-      marginLeft: '4px',
-    }
-  }
+  },
 };
 
 const Signup = () => {
@@ -129,15 +121,14 @@ const Signup = () => {
     password: "",
     gender: ""
   });
-
   const [imageFile, setImageFile] = useState(null);
   const [hover, setHover] = useState(false);
 
   const handleregister = async (e) => {
     e.preventDefault();
-
     const { name, email, password, gender } = alldata;
     if (!name || !email || !password || !gender || !imageFile) {
+      console.log('Missing fields:', { name, email, password, gender, imageFile });
       return toast.info("Please fill all fields and upload an image.");
     }
 
@@ -150,6 +141,7 @@ const Signup = () => {
 
     try {
       const result = await userregisterAPI(formData);
+      console.log('Registration response:', result.data);
       if (result.status === 201) {
         toast.success("Registration successful!");
         setalldata({ name: "", email: "", password: "", gender: "" });
@@ -159,7 +151,8 @@ const Signup = () => {
         toast.error(result.data.message || "Registration failed");
       }
     } catch (error) {
-      toast.error("Server error. Try again later.");
+      console.error('Registration error:', error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Server error. Try again later.");
     }
   };
 
@@ -177,10 +170,10 @@ const Signup = () => {
                 style={styles.imagePreview}
               />
             ) : (
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
                 backgroundColor: '#f0f0f0',
                 display: 'flex',
                 alignItems: 'center',
@@ -192,7 +185,6 @@ const Signup = () => {
                 No Image
               </div>
             )}
-            
           </label>
           <input
             type="file"
@@ -246,15 +238,15 @@ const Signup = () => {
           </label>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           style={hover ? { ...styles.button, ...styles.buttonHover } : styles.button}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
           Register
         </button>
-        
+
         <p style={styles.loginLink}>
           Already have an account? <Link to="/login">Login</Link>
         </p>

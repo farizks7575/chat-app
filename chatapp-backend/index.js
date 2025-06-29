@@ -4,18 +4,18 @@ const http = require('http');
 const cors = require('cors');
 const router = require('./Router/router');
 const { injectIO, setUserSockets } = require('./Controller/messageController');
-require('./DB/connection'); 
+require('./DB/connection');
 
 const app = express();
 
-// Allow multiple origins for development and production
 const allowedOrigins = [
   'https://legendary-cannoli-29f7c8.netlify.app',
-  
+  'http://localhost:3000', // For local development
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('CORS request from:', origin);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -25,8 +25,14 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use('/Uploads', express.static('./Uploads'));
+app.use('/Uploads', express.static('./Uploads')); // Fallback for existing local images
 app.use(router);
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 const server = http.createServer(app);
 const { Server } = require('socket.io');
@@ -36,7 +42,7 @@ const io = new Server(server, {
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
-  pingTimeout: 60000, // Increase timeout to prevent disconnection
+  pingTimeout: 60000,
   pingInterval: 25000,
 });
 
@@ -111,11 +117,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// Debug environment variables
 console.log('Environment variables:', {
   PORT: process.env.PORT,
   JWT_SECRET: process.env.JWT_SECRET,
   MONGODB_URI: process.env.MONGODB_URI,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
 });
 
 const PORT = process.env.PORT || 5000;
