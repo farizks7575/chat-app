@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -11,21 +10,31 @@ const app = express();
 
 const allowedOrigins = [
   'https://dazzling-arithmetic-541029.netlify.app',
+  'http://localhost:3000', // Add your local development origin
+  // Add other production domains as needed
 ];
 
+// Enhanced CORS configuration
 app.use(cors({
   origin: (origin, callback) => {
     console.log('CORS request from:', origin);
-    if (!origin || allowedOrigins.includes(origin)) {
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.error('CORS blocked for origin:', origin);
+      callback(new Error(`Not allowed by CORS. Allowed origins: ${allowedOrigins.join(', ')}`));
     }
   },
   credentials: true,
+  optionsSuccessStatus: 200 // For legacy browser support
 }));
+
 app.use(express.json());
-app.use('/uploads', express.static('./uploads')); // Kept for legacy compatibility, but Cloudinary is used
+app.use('/uploads', express.static('./uploads'));
 app.use(router);
 
 const server = http.createServer(app);
