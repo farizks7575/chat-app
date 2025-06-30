@@ -10,7 +10,7 @@ require('./DB/connection');
 const app = express();
 
 const allowedOrigins = [
-  'https://dazzling-arithmetic-541029.netlify.app/',
+  'https://dazzling-arithmetic-541029.netlify.app',
 ];
 
 app.use(cors({
@@ -25,7 +25,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use('/Uploads', express.static('./Uploads')); // Kept for legacy compatibility, but Cloudinary is used
+app.use('/uploads', express.static('./uploads')); // Kept for legacy compatibility, but Cloudinary is used
 app.use(router);
 
 const server = http.createServer(app);
