@@ -102,7 +102,9 @@ function Request() {
             >
               <div className="d-flex align-items-center">
                 <img
-                  src={r.senderId?.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+                  src={r.senderId?.image 
+                    ? `${process.env.REACT_APP_SERVER_URL}/uploads/${r.senderId.image}`
+                    : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`}
                   alt="Profile"
                   style={{
                     width: '55px',
@@ -113,7 +115,7 @@ function Request() {
                     marginRight: '12px',
                   }}
                   onError={(e) => {
-                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
+                    e.target.src = `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`;
                   }}
                 />
                 <h5 style={{ fontWeight: 600, marginLeft: '5px', marginTop: '10px' }}>

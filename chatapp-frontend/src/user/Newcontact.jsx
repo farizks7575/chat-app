@@ -21,7 +21,7 @@ function Newcontact() {
           window.location.href = '/login';
           return;
         }
-        setCurrentUserId(loggedInUserId); // Fixed the syntax error
+        setCurrentUserId(loggedInUserId);
         setToken(authToken);
 
         const headers = { Authorization: `Bearer ${authToken}` };
@@ -85,11 +85,13 @@ function Newcontact() {
           >
             <div className="d-flex align-items-center">
               <img
-                src={user.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+                src={user.image 
+                  ? `${process.env.REACT_APP_SERVER_URL}/uploads/${user.image}`
+                  : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`}
                 alt="profile"
                 style={{ width: '55px', height: '55px', borderRadius: '50%', marginRight: '12px' }}
                 onError={(e) => {
-                  e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
+                  e.target.src = `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`;
                 }}
               />
               <h3 style={{ fontWeight: 600, marginTop: '10px', marginLeft: '5px' }}>

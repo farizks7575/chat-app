@@ -6,7 +6,11 @@ import { toast } from 'react-toastify';
 const Sidebar = () => {
   const [activeLink, setActiveLink] = useState('Chats');
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [userImage, setUserImage] = useState(sessionStorage.getItem('userImage') || 'default.jpg');
+  const [userImage, setUserImage] = useState(
+    sessionStorage.getItem('userImage') 
+      ? `${process.env.REACT_APP_SERVER_URL}/uploads/${sessionStorage.getItem('userImage')}`
+      : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`
+  );
   const [newRequestCount, setNewRequestCount] = useState(0);
   const username = sessionStorage.getItem('username') || 'User';
   const location = useLocation();
@@ -46,12 +50,25 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
+    const handleStorageChange = () => {
+      const latestImage = sessionStorage.getItem('userImage');
+      setUserImage(
+        latestImage 
+          ? `${process.env.REACT_APP_SERVER_URL}/uploads/${latestImage}`
+          : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`
+      );
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
     const interval = setInterval(() => {
-      const latestImage = sessionStorage.getItem('userImage') || 'default.jpg';
-      setUserImage(latestImage);
+      handleStorageChange();
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -74,6 +91,7 @@ const Sidebar = () => {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
+      {/* Rest of the component remains the same */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.5rem' }}>
           {!isCollapsed && <h2 style={{ color: '#10b981', fontWeight: '700', fontSize: '1.5rem' }}>CONNECT HUB</h2>}
@@ -173,7 +191,7 @@ const Sidebar = () => {
           }}
         >
           <img
-            src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+            src={userImage}
             alt="User"
             style={{
               width: '42px',
@@ -183,7 +201,7 @@ const Sidebar = () => {
               border: '2px solid #10b981',
             }}
             onError={(e) => {
-              e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
+              e.target.src = `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`;
             }}
             draggable={false}
           />

@@ -15,10 +15,35 @@ function Dashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState({});
   const userId = sessionStorage.getItem('userId');
   const token = sessionStorage.getItem('token');
-  const userImage = sessionStorage.getItem('userImage') || 'default.jpg';
+  const [userImage, setUserImage] = useState(
+    sessionStorage.getItem('userImage')
+      ? `${process.env.REACT_APP_SERVER_URL}/uploads/${sessionStorage.getItem('userImage')}`
+      : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`
+  );
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef(null);
   const messageIds = useRef(new Set());
+
+  // Helper function to handle image errors
+  const handleImageError = (e) => {
+    e.target.src = `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`;
+    e.target.onerror = null; // Prevent infinite loop
+  };
+
+  // Update user image when it changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const latestImage = sessionStorage.getItem('userImage');
+      setUserImage(
+        latestImage
+          ? `${process.env.REACT_APP_SERVER_URL}/uploads/${latestImage}`
+          : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`
+      );
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const fetchAccepted = async () => {
     try {
@@ -39,6 +64,9 @@ function Dashboard() {
           const msgs = msgRes?.data || [];
           return {
             ...user,
+            image: user.image 
+              ? `${process.env.REACT_APP_SERVER_URL}/uploads/${user.image}`
+              : `${process.env.REACT_APP_SERVER_URL}/uploads/default.jpg`,
             lastMessage: msgs.length ? msgs[msgs.length - 1] : null,
           };
         })
@@ -148,6 +176,11 @@ function Dashboard() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleEmojiClick = (emojiData) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -203,11 +236,6 @@ function Dashboard() {
     };
   }, [userId, token, selectedUser]);
 
-  const handleEmojiClick = (emojiData) => {
-    setNewMessage((prev) => prev + emojiData.emoji);
-    setShowEmojiPicker(false);
-  };
-
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <Navbar />
@@ -241,20 +269,23 @@ function Dashboard() {
                               <div className="d-flex justify-content-between">
                                 <div className="d-flex flex-row">
                                   <img
-                                    src={u.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
-                                    onError={(e) => {
-                                      e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
-                                    }}
+                                    src={u.image}
                                     alt="avatar"
                                     width="60"
-                                    style={{ borderRadius: '50%', objectFit: 'cover' }}
+                                    height="60"
+                                    style={{ 
+                                      borderRadius: '50%', 
+                                      objectFit: 'cover',
+                                      border: '2px solid #ddd'
+                                    }}
+                                    onError={handleImageError}
                                   />
                                   <div className="pt-1 ps-4">
                                     <p className="fw-bold mb-0">{u.name}</p>
                                     <p className="small text-muted">
                                       {u.lastMessage?.content
                                         ? `${u.lastMessage.content.split(' ').slice(0, 4).join(' ')}...`
-                                        : 'You’re now connected'}
+                                        : "You're now connected"}
                                     </p>
                                   </div>
                                 </div>
@@ -285,7 +316,7 @@ function Dashboard() {
                       {!selectedUser ? (
                         <div className="empty-chat-state">
                           <img
-                            src="/messenger.png"
+                            src={`/messenger.png`}
                             alt="Chat illustration"
                             className="empty-chat-image"
                           />
@@ -300,12 +331,10 @@ function Dashboard() {
                             >
                               {msg.sender !== userId && (
                                 <img
-                                  src={selectedUser.image || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+                                  src={selectedUser.image}
                                   alt="avatar"
                                   className="message-avatar"
-                                  onError={(e) => {
-                                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
-                                  }}
+                                  onError={handleImageError}
                                 />
                               )}
                               <div className="message-content-wrapper">
@@ -341,12 +370,10 @@ function Dashboard() {
                               </div>
                               {msg.sender === userId && (
                                 <img
-                                  src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+                                  src={userImage}
                                   alt="avatar"
                                   className="message-avatar"
-                                  onError={(e) => {
-                                    e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
-                                  }}
+                                  onError={handleImageError}
                                 />
                               )}
                             </div>
@@ -357,12 +384,16 @@ function Dashboard() {
                       {selectedUser && (
                         <div className="text-muted d-flex justify-content-start align-items-center p-3 border-top">
                           <img
-                            src={userImage || 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg'}
+                            src={userImage}
                             alt="avatar"
-                            style={{ width: '40px', height: '40px', borderRadius: '50%' }}
-                            onError={(e) => {
-                              e.target.src = 'https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/Uploads/default.jpg';
+                            style={{ 
+                              width: '40px', 
+                              height: '40px', 
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              border: '2px solid #ddd'
                             }}
+                            onError={handleImageError}
                           />
                           <input
                             type="text"
